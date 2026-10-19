@@ -8,8 +8,7 @@ module ActiveRecordPgnats
     class PublishTriggerGenerator < Base
       source_root File.expand_path("templates", __dir__)
 
-      # Given the table name and the lowercased operation, so one subject covers
-      # insert, update and delete.
+      # Given the table name and the lowercased operation, so one subject covers insert, update and delete.
       class_option :subject, type: :string, default: "pg_changes.%s.%s"
 
       def create_migration_file

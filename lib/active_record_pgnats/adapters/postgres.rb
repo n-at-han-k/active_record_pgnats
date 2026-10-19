@@ -7,9 +7,7 @@ require "active_record_pgnats/publish_trigger"
 
 module ActiveRecordPgnats
   module Adapters
-    # The Postgres adapter. pgnats is a Postgres extension, so there is no other
-    # engine to support, but the interface is F(x)'s so an alternative could be
-    # substituted the same way.
+    # The Postgres adapter, the only engine pgnats has.
     class Postgres
       def initialize(connectable = ActiveRecord::Base)
         @connectable = connectable
@@ -21,16 +19,20 @@ module ActiveRecordPgnats
 
       # @return [Array<ActiveRecordPgnats::Server>]
       def servers
-        return [] unless pgnats_enabled?
-
-        Servers.all(connection)
+        if pgnats_enabled?
+          Servers.all(connection)
+        else
+          []
+        end
       end
 
       # @return [Array<ActiveRecordPgnats::Subscription>]
       def subscriptions
-        return [] unless pgnats_enabled?
-
-        Subscriptions.all(connection)
+        if pgnats_enabled?
+          Subscriptions.all(connection)
+        else
+          []
+        end
       end
 
       def create_server(name, options)
@@ -42,20 +44,24 @@ module ActiveRecordPgnats
         reload_conf
       end
 
-      # ALTER SERVER takes SET for an option already present and ADD for one that
-      # is not, and rejects the wrong verb, so the current options are read back
-      # and diffed. Anything absent from `options` is dropped -- the hash is the
-      # desired state, not a patch.
+      # Moves the server's options to the given set.
+      #
+      # @parameter name [String | Symbol] the server to alter.
+      # @parameter options [Hash] the desired state, not a patch: anything absent is dropped.
+      # @returns [void]
       def update_server(name, options)
+        # ALTER SERVER takes SET for an option already present and ADD for one that is not, and rejects the wrong verb, so the current options are read back and diffed.
         current = server_options(name)
 
         changes = options.map { |key, value| "#{current.key?(key) ? "SET" : "ADD"} #{key} #{quote(value)}" }
         changes += (current.keys - options.keys).map { |key| "DROP #{key}" }
 
-        return if changes.empty?
-
-        execute("ALTER SERVER #{quote_name(name)} OPTIONS (#{changes.join(", ")});")
-        reload_conf
+        if changes.empty?
+          nil
+        else
+          execute("ALTER SERVER #{quote_name(name)} OPTIONS (#{changes.join(", ")});")
+          reload_conf
+        end
       end
 
       def drop_server(name)
@@ -79,35 +85,36 @@ module ActiveRecordPgnats
         execute(PublishTrigger.drop_sql(table: table))
       end
 
-      # Tells the running background worker to pick the server's options back up;
-      # without it the new configuration only takes effect on the next connect.
+      # Tells the background worker to re-read the options.
+      #
+      # @returns [void] without this the new configuration only takes effect on the next connect.
       def reload_conf
         execute("SELECT pgnats_reload_conf();")
       end
 
       private
 
-      attr_reader :connectable
+        attr_reader :connectable
 
-      def connection
-        Connection.new(connectable.connection)
-      end
+        def connection
+          Connection.new(connectable.connection)
+        end
 
-      def execute(sql)
-        connection.execute(sql)
-      end
+        def execute(sql)
+          connection.execute(sql)
+        end
 
-      def server_options(name)
-        servers.find { |server| server.name == name.to_s }&.options || {}
-      end
+        def server_options(name)
+          servers.find { |server| server.name == name.to_s }&.options || {}
+        end
 
-      def quote(value)
-        connection.quote(value.to_s)
-      end
+        def quote(value)
+          connection.quote(value.to_s)
+        end
 
-      def quote_name(name)
-        connection.quote_table_name(name)
-      end
+        def quote_name(name)
+          connection.quote_table_name(name)
+        end
     end
   end
 end

@@ -8,8 +8,7 @@ module ActiveRecordPgnats
     class SubscriptionGenerator < Base
       source_root File.expand_path("templates", __dir__)
 
-      # The subject is the generator's NAME argument; the function it calls is
-      # required, because a subscription without one has nothing to run.
+      # The subject is the generator's NAME argument; the function it calls is required, because a subscription without one has nothing to run.
       argument :function, type: :string, required: true
 
       def create_migration_file
@@ -22,8 +21,9 @@ module ActiveRecordPgnats
           name
         end
 
-        # The subject carries dots, so file_name keeps them as underscores for
-        # the migration's own name.
+        # The subject, with its dots as underscores.
+        #
+        # @returns [String] the stem of the migration's filename, where a dot would read as an extension.
         def file_name
           super.tr(".", "_")
         end

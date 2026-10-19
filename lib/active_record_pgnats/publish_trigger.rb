@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ActiveRecordPgnats
-  # Builds the SQL for a trigger that publishes row changes to NATS.
+  # Builds the SQL for a publishing trigger.
   #
   # @api private
   module PublishTrigger

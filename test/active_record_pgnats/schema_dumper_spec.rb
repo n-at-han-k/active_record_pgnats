@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe ActiveRecordPgnats::SchemaDumper do
-  # Stands in for ActiveRecord::SchemaDumper: all that matters is that #tables
-  # is called and that ours runs after it.
+  # Stands in for ActiveRecord::SchemaDumper: all that matters is that #tables is called and that ours runs after it.
   let(:dumper_class) do
     Class.new do
       def tables(stream)
@@ -14,8 +13,8 @@ RSpec.describe ActiveRecordPgnats::SchemaDumper do
   let(:adapter) do
     instance_double(
       ActiveRecordPgnats::Adapters::Postgres,
-      servers: [ActiveRecordPgnats::Server.new("name" => "nats", "options" => ["host=127.0.0.1"])],
-      subscriptions: [ActiveRecordPgnats::Subscription.new("subject" => "events.>", "callback" => "handle")]
+      servers:       [ActiveRecordPgnats::Server.new("name" => "nats", "options" => ["host=127.0.0.1"])],
+      subscriptions: [ActiveRecordPgnats::Subscription.new("subject" => "events.>", "callback" => "handle")],
     )
   end
 
@@ -29,7 +28,7 @@ RSpec.describe ActiveRecordPgnats::SchemaDumper do
     expect(stream.string).to eq(
       "  create_table :maps_devices\n" \
       "\n  create_nats_server :nats, host: \"127.0.0.1\"\n" \
-      "\n  create_nats_subscription \"events.>\", function: \"handle\"\n"
+      "\n  create_nats_subscription \"events.>\", function: \"handle\"\n",
     )
   end
 end

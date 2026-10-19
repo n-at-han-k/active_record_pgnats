@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module ActiveRecordPgnats
-  # A row of pgnats.subscriptions: a subject and the function the background
-  # worker calls with each message on it.
+  # A row of pgnats.subscriptions: a subject and its function.
   #
   # @api private
   class Subscription

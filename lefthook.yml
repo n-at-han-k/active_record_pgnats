@@ -5,6 +5,9 @@
 pre-commit:
   parallel: true
   commands:
+    rubocop:
+      glob: "*.rb"
+      run: nix develop --command bundle exec rubocop --force-exclusion {staged_files}
     secrets:
       run: nix develop --command trufflehog git file://. --since-commit HEAD --only-verified --fail
     tests:

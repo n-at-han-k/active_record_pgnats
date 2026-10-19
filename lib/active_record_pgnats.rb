@@ -12,24 +12,21 @@ require "active_record_pgnats/server"
 require "active_record_pgnats/statements"
 require "active_record_pgnats/subscription"
 
-# Migration methods for pgnats: the foreign server that holds its connection
-# config, the subject subscriptions its background worker reads, and the
-# triggers that publish row changes.
-#
-# No railtie and no Rails here: requiring this file installs the hooks, so an
-# Active Record app without Rails gets them by requiring the gem. Under Rails
-# the install waits for active_record_pgnats-rails' railtie, which runs it at
-# the on_load :active_record moment.
+# Migration methods for pgnats, Active Record only.
 module ActiveRecordPgnats
   class << self
+    # Installs the statements, the recorder and the dumper.
+    #
+    # @returns [Boolean] true the first time, false once the hooks are in place.
     def load
-      return false if @loaded
-
-      ActiveRecord::ConnectionAdapters::AbstractAdapter.include(Statements)
-      ActiveRecord::Migration::CommandRecorder.include(CommandRecorder)
-      ActiveRecord::SchemaDumper.prepend(SchemaDumper)
-
-      @loaded = true
+      if @loaded
+        false
+      else
+        ActiveRecord::ConnectionAdapters::AbstractAdapter.include(Statements)
+        ActiveRecord::Migration::CommandRecorder.include(CommandRecorder)
+        ActiveRecord::SchemaDumper.prepend(SchemaDumper)
+        @loaded = true
+      end
     end
 
     def configuration
@@ -48,4 +45,6 @@ module ActiveRecordPgnats
   end
 end
 
-ActiveRecordPgnats.load unless defined?(::Rails::Railtie)
+unless defined?(::Rails::Railtie)
+  ActiveRecordPgnats.load
+end

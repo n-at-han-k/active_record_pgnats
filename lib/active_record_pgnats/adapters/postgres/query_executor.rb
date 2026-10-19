@@ -22,7 +22,7 @@ module ActiveRecordPgnats
 
         private
 
-        attr_reader :connection, :query, :model_class
+          attr_reader :connection, :query, :model_class
       end
     end
   end

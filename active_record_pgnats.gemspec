@@ -26,8 +26,7 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG-active_record_pgnats.md"
   spec.metadata["rubygems_mfa_required"] = "true"
 
-  # Rails support lives in a sibling gem sharing this lib/ tree. This gem ships
-  # the statements, the adapter and the dumper only.
+  # Rails support lives in a sibling gem sharing this lib/ tree. This gem ships the statements, the adapter and the dumper only.
   spec.files = %w[
     lib/active_record_pgnats.rb
     lib/active_record_pgnats/version.rb

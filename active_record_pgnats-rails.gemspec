@@ -30,13 +30,12 @@ Gem::Specification.new do |spec|
   spec.files = Dir[
     "lib/active_record_pgnats/rails.rb",
     "lib/active_record_pgnats/rails/**/*.rb",
-    "lib/generators/**/*"
+    "lib/generators/**/*",
   ] + %w[README.md LICENSE]
   spec.require_paths = ["lib"]
 
-  # Derived: this gem tracks the core beside it in-repo. While the core is 0.x
-  # its minor is the breaking axis, so the constraint pins both segments.
-  spec.add_dependency "active_record_pgnats", "~> #{ActiveRecordPgnats::VERSION.split(".").first(2).join(".")}"
+  # Derived: this gem tracks the core beside it in-repo. Writing the major out strands it on each bump.
+  spec.add_dependency "active_record_pgnats", "~> #{ActiveRecordPgnats::VERSION.split(".").first}.0"
   spec.add_dependency "railties", ">= 7.2"
 
   spec.add_development_dependency "rake", "~> 13.0"

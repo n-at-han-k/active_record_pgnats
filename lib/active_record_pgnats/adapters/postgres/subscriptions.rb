@@ -8,12 +8,9 @@ module ActiveRecordPgnats
     class Postgres
       # Fetches subscriptions from pgnats' own table.
       #
-      # pgnats keeps them in pgnats.subscriptions and its background worker reads
-      # that table on start, so the table IS the durable state -- there is no
-      # catalog view to read instead.
-      #
       # @api private
       class Subscriptions
+        # pgnats.subscriptions is the durable state its worker reads on start, so there is no catalog view to read instead.
         SUBSCRIPTIONS_QUERY = <<~SQL.freeze
           SELECT subject, callback
           FROM pgnats.subscriptions

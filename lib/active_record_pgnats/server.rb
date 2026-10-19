@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module ActiveRecordPgnats
-  # pgnats' foreign server as it exists in pg_foreign_server, and how it is
-  # written back into schema.rb.
+  # pgnats' foreign server, as pg_foreign_server holds it.
   #
   # @api private
   class Server
@@ -15,10 +14,16 @@ module ActiveRecordPgnats
       @options = self.class.parse_options(row.fetch("options"))
     end
 
-    # srvoptions comes back as a Postgres text[] of "key=value" items, which the
-    # pg adapter hands over either as an Array or as the raw "{a=b,c=d}" literal.
+    # Parses srvoptions into a hash.
+    #
+    # @parameter value [Array | String] a Postgres text[] of "key=value" items, which the pg adapter hands over either as an Array or as the raw "{a=b,c=d}" literal.
+    # @returns [Hash] option name => value.
     def self.parse_options(value)
-      items = value.is_a?(Array) ? value : value.to_s.delete_prefix("{").delete_suffix("}").split(",")
+      if value.is_a?(Array)
+        items = value
+      else
+        items = value.to_s.delete_prefix("{").delete_suffix("}").split(",")
+      end
 
       items.to_h do |item|
         key, _, rest = item.to_s.partition("=")

@@ -4,18 +4,24 @@
 #   DATABASE_URL=postgres:///opencloud-api bundle exec rspec spec/integration
 RSpec.describe "migrations", :integration do
   before(:all) do
-    skip "set DATABASE_URL to run the integration spec" unless ENV["DATABASE_URL"]
+    unless ENV["DATABASE_URL"]
+      skip "set DATABASE_URL to run the integration spec"
+    end
 
     require "pg"
     ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
-    skip "pgnats is not installed in #{ENV["DATABASE_URL"]}" unless ActiveRecordPgnats.database.pgnats_enabled?
+    unless ActiveRecordPgnats.database.pgnats_enabled?
+      skip "pgnats is not installed in #{ENV["DATABASE_URL"]}"
+    end
   end
 
   let(:connection) { ActiveRecord::Base.connection }
 
   it "creates, updates and drops the server" do
     existing = ActiveRecordPgnats.database.servers.map(&:name)
-    skip "a pgnats server already exists (#{existing.join(", ")}); only one is allowed" if existing.any?
+    if existing.any?
+      skip "a pgnats server already exists (#{existing.join(", ")}); only one is allowed"
+    end
 
     connection.create_nats_server(:nats_spec, host: "127.0.0.1", port: 4222)
     expect(ActiveRecordPgnats.database.servers.map(&:options))

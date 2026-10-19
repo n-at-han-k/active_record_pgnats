@@ -2,7 +2,7 @@
 
 require "tmpdir"
 
-# Runs a generator into a throwaway destination and hands back the file it wrote.
+# Runs a generator into a throwaway destination.
 module GeneratorRun
   def run_generator(generator, args, **options)
     Dir.mktmpdir do |root|

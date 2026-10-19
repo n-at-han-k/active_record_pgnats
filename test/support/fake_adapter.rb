@@ -33,8 +33,7 @@ class FakeAdapter
   end
 end
 
-# A bare object carrying the statements, standing in for the connection adapter
-# they are included into in a real application.
+# A bare object carrying the statements.
 class FakeConnection
   include ActiveRecordPgnats::Statements
 end

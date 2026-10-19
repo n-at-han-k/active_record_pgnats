@@ -8,12 +8,9 @@ module ActiveRecordPgnats
     class Postgres
       # Fetches pgnats' foreign server from the connection.
       #
-      # Selected by wrapper rather than by name: the server's name is the
-      # migration's to choose, pgnats finds it by joining pg_foreign_data_wrapper
-      # on fdwname, and so does this.
-      #
       # @api private
       class Servers
+        # Selected by wrapper, not by name: the name is the migration's to choose, and pgnats itself joins pg_foreign_data_wrapper on fdwname to find it.
         SERVERS_QUERY = <<~SQL.freeze
           SELECT
               s.srvname AS name,
