@@ -1,0 +1,10 @@
+Description:
+    Create the migration for a trigger publishing a table's row changes to NATS.
+    The payload is {table, op, at, row}; the publish cannot roll the write back.
+
+Examples:
+    rails generate active_record_pgnats:publish_trigger maps_devices
+
+        create: db/migrate/[TIMESTAMP]_create_nats_publish_trigger_maps_devices.rb
+
+    rails generate active_record_pgnats:publish_trigger maps_devices --subject="devices.%s.%s"

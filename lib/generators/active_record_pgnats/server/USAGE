@@ -1,0 +1,10 @@
+Description:
+    Create the migration for pgnats' foreign server, which holds its entire
+    configuration. pgnats allows exactly one per database.
+
+Examples:
+    rails generate active_record_pgnats:server nats
+
+        create: db/migrate/[TIMESTAMP]_create_nats_server_nats.rb
+
+    rails generate active_record_pgnats:server nats --host=10.0.0.1 --port=4223

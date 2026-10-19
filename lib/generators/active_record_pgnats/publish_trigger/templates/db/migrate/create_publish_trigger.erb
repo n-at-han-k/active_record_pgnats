@@ -1,0 +1,7 @@
+class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    create_nats_publish_trigger <%= formatted_table_name %>,
+      subject: "<%= options[:subject] %>",
+      revert_to_subject: "<%= options[:subject] %>"
+  end
+end

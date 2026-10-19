@@ -16,8 +16,10 @@ require "active_record_pgnats/subscription"
 # config, the subject subscriptions its background worker reads, and the
 # triggers that publish row changes.
 #
-# No railtie and no Rails: requiring this file installs the hooks, so an
-# Active Record app without Rails gets them by requiring the gem.
+# No railtie and no Rails here: requiring this file installs the hooks, so an
+# Active Record app without Rails gets them by requiring the gem. Under Rails
+# the install waits for active_record_pgnats-rails' railtie, which runs it at
+# the on_load :active_record moment.
 module ActiveRecordPgnats
   class << self
     def load
@@ -46,4 +48,4 @@ module ActiveRecordPgnats
   end
 end
 
-ActiveRecordPgnats.load
+ActiveRecordPgnats.load unless defined?(::Rails::Railtie)

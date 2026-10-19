@@ -1,0 +1,11 @@
+# Git hooks (managed by lefthook). Install with `bundle exec lefthook install`.
+#
+# The commands are wrapped in `nix develop --command` because the hook fires
+# outside the flake devshell, so bundler and trufflehog would not be on PATH.
+pre-commit:
+  parallel: true
+  commands:
+    secrets:
+      run: nix develop --command trufflehog git file://. --since-commit HEAD --only-verified --fail
+    tests:
+      run: nix develop --command bin/test

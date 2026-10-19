@@ -6,16 +6,37 @@ Postgres extension that publishes to and subscribes from NATS.
 Modelled on [F(x)](https://github.com/teoljungberg/fx) and
 [pg_cron-rails](https://github.com/n-at-han-k/pg_cron-rails): migration
 statements, reversibility through the command recorder, and a schema dumper so
-`schema.rb` carries what the extension holds. **Active Record only** — no
-`railties`, no `Rails.root`, no railtie. Requiring the gem installs the hooks.
+`schema.rb` carries what the extension holds.
+
+Two gems in this repository, sharing one `lib/` tree:
+
+| gem | what it is |
+|---|---|
+| `active_record_pgnats` | the statements, the adapter and the dumper. Active Record only — no `railties`, no `Rails.root`, no railtie |
+| `active_record_pgnats-rails` | a railtie installing the hooks at the `on_load :active_record` moment, and generators for the migrations |
 
 ```ruby
-# Gemfile
+# Gemfile -- Active Record on its own
 gem "active_record_pgnats"
 ```
 
 ```ruby
 require "active_record_pgnats"   # installs the statements, recorder and dumper
+```
+
+```ruby
+# Gemfile -- Rails
+gem "active_record_pgnats-rails"
+```
+
+Under Rails the core defers: requiring it does nothing until the railtie runs
+the install, because Active Record may not be loaded when the bundle is. Use the
+`-rails` gem there rather than the core on its own.
+
+```sh
+rails generate active_record_pgnats:server nats --host=127.0.0.1 --port=4222
+rails generate active_record_pgnats:subscription events.user.created handle_user_created
+rails generate active_record_pgnats:publish_trigger maps_devices --subject="devices.%s.%s"
 ```
 
 pgnats itself has to be loaded by the server (`shared_preload_libraries =
@@ -140,12 +161,41 @@ learned this the hard way: its `resolve_sql_definition` took one argument fewer
 than F(x)'s, so every `create_function` in the host app died with
 `ArgumentError: wrong number of arguments (given 4, expected 3)`.
 
-## Specs
+## Development
+
+```bash
+nix develop   # or direnv allow
+bin/setup     # install dependencies
+bin/test      # run the tests
+bin/console   # interactive prompt
+```
 
 ```sh
-bundle exec rspec                                    # no database needed
-DATABASE_URL=postgres:///my_db bundle exec rspec spec/integration
+bin/test                                                  # no database needed
+DATABASE_URL=postgres:///my_db bin/test test/integration   # against real pgnats
 ```
 
 The unit suite runs against a fake adapter. The integration spec skips itself
 unless `DATABASE_URL` is set and pgnats is installed there.
+
+One Gemfile covers the whole repository. Neither of its own gems is in the
+bundle — the devshell puts `lib/` on `RUBYLIB` — so no lockfile records a
+version and a bump has nothing to keep in step. After touching the Gemfile,
+`nix develop --command bundix -l`.
+
+Each gem carries its own version, changelog (`CHANGELOG-<gem>.md`) and tag
+(`<gem>-v1.2.3`), and is released on its own schedule with
+[gem_kit-release](https://github.com/n-at-han-k/gem_kit):
+
+```bash
+gem kit bump patch --gem active_record_pgnats-rails
+gem kit changelog --write --gem active_record_pgnats-rails
+gem kit release --gem active_record_pgnats-rails
+```
+
+`active_record_pgnats-rails` derives its dependency on the core from the core's
+own version, so a bump there does not have to be written out twice.
+
+## License
+
+[MIT](LICENSE)

@@ -1,0 +1,5 @@
+class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    create_nats_server <%= formatted_name %>, host: "<%= options[:host] %>", port: "<%= options[:port] %>"
+  end
+end
